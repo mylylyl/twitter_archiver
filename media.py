@@ -35,7 +35,9 @@ class media(object):
     def download_photos(self):
         # populate photo names into db
         new_photo_names = []
-        rows = self.cur_t.execute("SELECT photos FROM tweets")
+        # photo name -> id
+        name_dict = {}
+        rows = self.cur_t.execute("SELECT photos, id FROM tweets")
         for row in rows:
             raw_url = row[0]
             if not raw_url:
@@ -43,9 +45,13 @@ class media(object):
             if "," in raw_url:
                 urls = raw_url.split(",")
                 for url in urls:
-                    new_photo_names.append(url[28:43])
+                    photo_name = url[28:43]
+                    new_photo_names.append(photo_name)
+                    name_dict[photo_name] = row[1]
             else:
-                new_photo_names.append(raw_url[28:43])
+                photo_name = raw_url[28:43]
+                new_photo_names.append(photo_name)
+                name_dict[photo_name] = row[1]
         # fetch photo names from media db
         old_photo_names = []
         rows = self.cur.execute("SELECT name FROM photos")
