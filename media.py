@@ -60,17 +60,12 @@ class media(object):
         # get the newly fetched tweets' photo names
         nks = set(name_dict.keys())
         ops = set(old_photo_names)
-        diff = list(set(list(ops.difference(nks)) + list(nks.difference(ops))))
-        if not diff:
+        name_diff = list(set(list(ops.difference(nks)) + list(nks.difference(ops))))
+        if not name_diff:
             return
-        print("[+] found %d new photos" % len(diff))
-        # create tuples then convert to string
-        # (name, id, 0)
-        values = []
-        for d in diff:
-            values.append((d, name_dict[d], 0))
-        values_str = ','.join([str(value) for value in values])
-        self.cur.execute("INSERT INTO photo VALUES " + values_str)
+        print("[+] found %d new photos" % len(name_diff))
+        for name in name_diff:
+            self.cur.execute("INSERT INTO photo (name, id, downloaded) VALUES ('%s', %d, 0)" % (name, name_dict[name]))
         self.conn.commit()
         print("[√] finished populating new photos")
 
@@ -81,7 +76,7 @@ class media(object):
             photos_to_be_download.append(row[0])
         return photos_to_be_download
 
-    def set_photos_downloaded(self, photos : list(str)):
+    def set_photos_downloaded(self, photos):
         for photo_name in photos:
             self.cur.execute("UPDATE photo SET downloaded = 1 WHERE name = '%s'" % photo_name)
         self.conn.commit()
