@@ -5,6 +5,7 @@ import media_downloader as downloader
 class media(object):
     def __init__(self, username : str):
         self.username = username
+        # media\\username
         self.media_dir = "media\\" + self.username
         if not path.exists(self.media_dir):
             mkdir(self.media_dir)
