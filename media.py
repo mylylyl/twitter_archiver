@@ -63,11 +63,10 @@ class media(object):
         name_diff = list(set(list(ops.difference(nks)) + list(nks.difference(ops))))
         if not name_diff:
             return
-        print("[+] found %d new photos" % len(name_diff))
         for name in name_diff:
             self.cur.execute("INSERT INTO photo (name, id, downloaded) VALUES ('%s', %d, 0)" % (name, name_dict[name]))
         self.conn.commit()
-        print("[√] finished populating new photos")
+        print("[+] found %d new photos" % len(name_diff))
 
     def get_photos_to_be_download(self):
         photos_to_be_download = []
