@@ -5,14 +5,14 @@ from requests import get
 PHOTO_BASE_URL = "https://pbs.twimg.com/media/"
 VIDEO_BASE_URL = "https://twitter.com/statuses/"
 
-def video(video_url : str, download_location : str):
+def video(video_id : int, download_location : str):
     download_path = str(Path(download_location, "%(id)s.%(ext)s"))
     ydl_opts = {
         "outtmpl": download_path,
         "quiet": True,
     }
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([video_url, ])
+        ydl.download([VIDEO_BASE_URL + str(video_id), ])
 
 def photo(photo_name : str, download_location : str):
     path = str(Path(download_location, photo_name + ".jpg"))
