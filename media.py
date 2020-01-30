@@ -17,14 +17,16 @@ class media(object):
             self.conn = sqlite3.connect("db\\" + dbname)
             self.cur = self.conn.cursor()
             # create table for photos
-            self.cur.execute('''CREATE TABLE photo
-                (id INT PRIMARY KEY NOT NULL,
-                name TEXT NOT NULL,
-                downloaded INT NOT NULL DEFAULT 0);''')
+            self.cur.execute('''CREATE TABLE photo (
+                name TEXT PRIMARY KEY,
+                id INT NOT NULL,
+                downloaded INT NOT NULL DEFAULT 0
+                ) WITHOUT ROWID;''')
             # create table for photos
-            self.cur.execute('''CREATE TABLE video
-                (id INT PRIMARY KEY NOT NULL,
-                downloaded INT NOT NULL DEFAULT 0);''')
+            self.cur.execute('''CREATE TABLE video (
+                id INT PRIMARY KEY,
+                downloaded INT NOT NULL DEFAULT 0)
+                ;''')
             self.conn.commit()
 
         # load tweet db
@@ -32,9 +34,8 @@ class media(object):
         self.conn_t = sqlite3.connect("db\\" + dbname_t)
         self.cur_t = self.conn_t.cursor()
 
-    def download_photos(self):
+    def populate_photos(self):
         # populate photo names into db
-        new_photo_names = []
         # photo name -> id
         name_dict = {}
         rows = self.cur_t.execute("SELECT photos, id FROM tweets")
@@ -46,19 +47,18 @@ class media(object):
                 urls = raw_url.split(",")
                 for url in urls:
                     photo_name = url[28:43]
-                    new_photo_names.append(photo_name)
                     name_dict[photo_name] = row[1]
             else:
                 photo_name = raw_url[28:43]
-                new_photo_names.append(photo_name)
                 name_dict[photo_name] = row[1]
         # fetch photo names from media db
         old_photo_names = []
-        rows = self.cur.execute("SELECT name FROM photos")
+        rows = self.cur.execute("SELECT name FROM photo")
         for row in rows:
             old_photo_names.append(row[0])
         # get the newly fetched tweets' photo names
-        diff = list(set(old_photo_names).difference(set(new_photo_names)))
+        
+
 
 
     def download_videos(self):
