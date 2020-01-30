@@ -38,7 +38,7 @@ class media(object):
         # populate photo names into db
         # photo name -> id
         name_dict = {}
-        rows = self.cur_t.execute("SELECT photos, id FROM tweets")
+        rows = self.cur_t.execute("SELECT photos, id FROM tweets ORDER BY created_at")
         for row in rows:
             raw_url = row[0]
             if not raw_url:
