@@ -83,10 +83,11 @@ class media(object):
     def download_photos(self):
         self.populate_photos()
         photos = self.get_photos_to_be_download()
-        print("[+] %d photos to be downloaded" % len(photos))
-        for photo_name in photos:
-            downloader.photo(photo_name, self.media_dir)
-        self.set_photos_downloaded(photos)
+        if photos:
+            print("[+] %d photos to be downloaded" % len(photos))
+            for photo_name in photos:
+                downloader.photo(photo_name, self.media_dir)
+            self.set_photos_downloaded(photos)
         print("[√] finished downloading all photos")
 
     def populate_videos(self):
@@ -124,10 +125,11 @@ class media(object):
     def download_videos(self):
         self.populate_videos()
         videos = self.get_videos_to_be_download()
-        print("[+] %d videos to be downloaded" % len(videos))
-        for video_id in videos:
-            downloader.video(video_id, self.media_dir)
-        self.set_videos_downloaded(videos)
+        if videos:
+            print("[+] %d videos to be downloaded" % len(videos))
+            for video_id in videos:
+                downloader.video(video_id, self.media_dir)
+            self.set_videos_downloaded(videos)
         print("[√] finished downloading all videos")
 
     def __del__(self):
