@@ -1,12 +1,13 @@
 import sqlite3
-from os import path
-
-PHOTO_BASE_URL = "https://pbs.twimg.com/media/"
-VIDEO_BASE_URL = "https://twitter.com/statuses/"
+from os import path, mkdir
+import media_downloader as downloader
 
 class media(object):
     def __init__(self, username : str):
         self.username = username
+        self.media_dir = "media\\" + self.username
+        if not path.exists(self.media_dir):
+            mkdir(self.media_dir)
         
         # username_media.db
         dbname = self.username + "_media.db"
@@ -64,10 +65,10 @@ class media(object):
             return
         print("[+] found %d new photos" % len(diff))
         # create tuples then convert to string
-        # (id, name, 0)
+        # (name, id, 0)
         values = []
         for d in diff:
-            values.append((name_dict[d], d, 0))
+            values.append((d, name_dict[d], 0))
         values_str = ','.join([str(value) for value in values])
         self.cur.execute("INSERT INTO photo VALUES " + values_str)
         self.conn.commit()
@@ -80,10 +81,18 @@ class media(object):
             photos_to_be_download.append(row[0])
         return photos_to_be_download
 
+    def set_photos_downloaded(self, photos : list(str)):
+        for photo_name in photos:
+            self.cur.execute("UPDATE photo SET downloaded = 1 WHERE name = '%s'" % photo_name)
+        self.conn.commit()
+
     def download_photos(self):
         self.populate_photos()
         photos = self.get_photos_to_be_download()
         print("[+] %d photos to be downloaded" % len(photos))
+        for photo_name in photos:
+            downloader.photo(photo_name, self.media_dir)
+        self.set_photos_downloaded(photos)
         print("[√] finished downloading all photos")
 
 
