@@ -116,9 +116,19 @@ class media(object):
             videos_to_be_download.append(row[0])
         return videos_to_be_download
 
+    def set_videos_downloaded(self, videos):
+        for video_id in videos:
+            self.cur.execute("UPDATE video SET downloaded = 1 WHERE id = %d" % video_id)
+        self.conn.commit()
+
     def download_videos(self):
         self.populate_videos()
-        
+        videos = self.get_videos_to_be_download()
+        print("[+] %d videos to be downloaded" % len(videos))
+        for video_id in videos:
+            downloader.video(video_id, self.media_dir)
+        self.set_videos_downloaded(videos)
+        print("[√] finished downloading all videos")
 
     def __del__(self):
         self.conn.close()
