@@ -107,7 +107,7 @@ class media(object):
         for vid in vid_diff:
             self.cur.execute("INSERT INTO video (id, downloaded) VALUES (%d, 0)" % vid)
         self.conn.commit()
-        print("[+] found %d new videos" % len(name_diff))
+        print("[+] found %d new videos" % len(vid_diff))
 
     def download_videos(self):
         self.populate_videos()
