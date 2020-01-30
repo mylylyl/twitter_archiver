@@ -109,6 +109,13 @@ class media(object):
         self.conn.commit()
         print("[+] found %d new videos" % len(vid_diff))
 
+    def get_videos_to_be_download(self):
+        videos_to_be_download = []
+        rows = self.cur.execute("SELECT id FROM video WHERE downloaded = 0")
+        for row in rows:
+            videos_to_be_download.append(row[0])
+        return videos_to_be_download
+
     def download_videos(self):
         self.populate_videos()
         

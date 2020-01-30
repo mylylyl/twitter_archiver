@@ -127,3 +127,4 @@ dmypy.json
 # db and media folder
 db/
 media/
+twitters.txt
