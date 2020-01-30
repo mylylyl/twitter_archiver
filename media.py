@@ -89,13 +89,29 @@ class media(object):
         self.set_photos_downloaded(photos)
         print("[√] finished downloading all photos")
 
-
+    def populate_videos(self):
+        # populate tweet ids into db
+        all_vid_ids = []
+        rows = self.cur_t.execute("SELECT id FROM tweets WHERE video = 1 ORDER BY created_at")
+        for row in rows:
+            all_vid_ids.append(row[0])
+        old_vid_ids = []
+        rows = self.cur.execute("SELECT id FROM video")
+        for row in rows:
+            old_vid_ids.append(row[0])
+        avi = set(all_vid_ids)
+        ovi = set(old_vid_ids)
+        vid_diff = list(set(list(avi.difference(ovi)) + list(ovi.difference(avi))))
+        if not vid_diff:
+            return
+        for vid in vid_diff:
+            self.cur.execute("INSERT INTO video (id, downloaded) VALUES (%d, 0)" % vid)
+        self.conn.commit()
+        print("[+] found %d new videos" % len(name_diff))
 
     def download_videos(self):
-        # populate tweet ids into db
-        r = self.cur_t.execute("SELECT id FROM tweets")
-        for p in r:
-            print(p)
+        self.populate_videos()
+        
 
     def __del__(self):
         self.conn.close()
