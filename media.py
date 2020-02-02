@@ -1,22 +1,27 @@
 import sqlite3
-from os import path, mkdir
+from os import path, mkdir, strerror
+import errno
 import media_downloader as downloader
 
 class media(object):
     def __init__(self, username : str):
         self.username = username
-        # media\\username
-        self.media_dir = "media\\" + self.username
-        if not path.exists(self.media_dir):
-            mkdir(self.media_dir)
         
-        # username_media.db
-        dbname = self.username + "_media.db"
-        if path.exists("db\\" + dbname):
-            self.conn = sqlite3.connect("db\\" + dbname)
+        # load tweet db
+        dbname_t = "%s\\tweet.db" % self.username
+        if path.exists(dbname_t):
+            self.conn_t = sqlite3.connect(dbname_t)
+            self.cur_t = self.conn_t.cursor()
+        else:
+            raise FileNotFoundError(errno.ENOENT, strerror(errno.ENOENT), dbname_t)
+        
+        # load media db
+        dbname = "%s\\media.db" % self.username
+        if path.exists(dbname):
+            self.conn = sqlite3.connect(dbname)
             self.cur = self.conn.cursor()
         else:
-            self.conn = sqlite3.connect("db\\" + dbname)
+            self.conn = sqlite3.connect(dbname)
             self.cur = self.conn.cursor()
             # create table for photos
             self.cur.execute('''CREATE TABLE photo (
@@ -29,12 +34,7 @@ class media(object):
                 id INT PRIMARY KEY,
                 downloaded INT NOT NULL DEFAULT 0)
                 ;''')
-            self.conn.commit()
-
-        # load tweet db
-        dbname_t = self.username + ".db"
-        self.conn_t = sqlite3.connect("db\\" + dbname_t)
-        self.cur_t = self.conn_t.cursor()
+            self.conn.commit()   
 
     def populate_photos(self):
         # populate photo names into db
@@ -87,7 +87,7 @@ class media(object):
         if photos:
             print("[+] %d photos to be downloaded" % len(photos))
             for photo_name in photos:
-                downloader.photo(photo_name, self.media_dir)
+                downloader.photo(photo_name, self.username)
             self.set_photos_downloaded(photos)
         print("[√] finished downloading all photos from %s" % self.username)
 
@@ -129,7 +129,7 @@ class media(object):
         if videos:
             print("[+] %d videos to be downloaded" % len(videos))
             for video_id in videos:
-                downloader.video(video_id, self.media_dir)
+                downloader.video(video_id, self.username)
             self.set_videos_downloaded(videos)
         print("[√] finished downloading all videos from %s" % self.username)
 
