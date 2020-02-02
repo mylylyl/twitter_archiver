@@ -133,6 +133,10 @@ class media(object):
             self.set_videos_downloaded(videos)
         print("[√] finished downloading all videos")
 
+    def archive(self):
+        self.download_photos()
+        self.download_videos()
+
     def __del__(self):
         self.conn.close()
         self.conn_t.close()
