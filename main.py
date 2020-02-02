@@ -46,7 +46,7 @@ class ArchiveScheduler(object):
         print("[√] finished downloading all content")
 
 # borrowed from dixudx/tumblr-crawler
-def parse_sites(filename : str):
+def parse_sites(filename : str) -> list:
     with open(filename, "r") as f:
         raw_sites = f.read().rstrip().lstrip()
 
@@ -61,8 +61,8 @@ def parse_sites(filename : str):
         site = raw_site.lstrip().rstrip()
         if site:
             sites.append(site)
-    return sites
-
+    return list(set(sites))
+    
 if __name__ == "__main__":
     cur_dir = path.dirname(path.realpath(__file__))
     sites = None
