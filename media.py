@@ -69,7 +69,7 @@ class media(object):
         self.conn.commit()
         print("[+] found %d new photos" % len(name_diff))
 
-    def get_photos_to_be_download(self):
+    def get_photos_to_be_download(self) -> list(str):
         photos_to_be_download = []
         rows = self.cur.execute("SELECT name FROM photo WHERE downloaded = 0")
         for row in rows:
@@ -111,7 +111,7 @@ class media(object):
         self.conn.commit()
         print("[+] found %d new videos" % len(vid_diff))
 
-    def get_videos_to_be_download(self):
+    def get_videos_to_be_download(self) -> list(str):
         videos_to_be_download = []
         rows = self.cur.execute("SELECT id FROM video WHERE downloaded = 0")
         for row in rows:
