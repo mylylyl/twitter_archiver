@@ -16,7 +16,6 @@ class media(object):
             self.cur_t = self.conn_t.cursor()
         else:
             raise FileNotFoundError(errno.ENOENT, strerror(errno.ENOENT), dbname_t)
-            sys.exit(1)
         
         # load media db
         dbname = "%s\\media.db" % self.username
