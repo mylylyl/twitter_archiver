@@ -1,6 +1,8 @@
-import sqlite3
 from os import path, mkdir, strerror
+import sys
 import errno
+import sqlite3
+
 import media_downloader as downloader
 
 class media(object):
@@ -14,6 +16,7 @@ class media(object):
             self.cur_t = self.conn_t.cursor()
         else:
             raise FileNotFoundError(errno.ENOENT, strerror(errno.ENOENT), dbname_t)
+            sys.exit(1)
         
         # load media db
         dbname = "%s\\media.db" % self.username
