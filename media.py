@@ -89,7 +89,7 @@ class media(object):
             for photo_name in photos:
                 downloader.photo(photo_name, self.media_dir)
             self.set_photos_downloaded(photos)
-        print("[√] finished downloading all photos")
+        print("[√] finished downloading all photos from %s" % self.username)
 
     def populate_videos(self):
         # populate tweet ids into db
@@ -131,7 +131,7 @@ class media(object):
             for video_id in videos:
                 downloader.video(video_id, self.media_dir)
             self.set_videos_downloaded(videos)
-        print("[√] finished downloading all videos")
+        print("[√] finished downloading all videos from %s" % self.username)
 
     def archive(self):
         self.download_photos()
