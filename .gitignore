@@ -125,6 +125,5 @@ dmypy.json
 .pyre/
 
 # db and media folder
-db/
-media/
+data/
 sites.txt

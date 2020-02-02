@@ -1,4 +1,4 @@
-from os import path, mkdir
+from os import path, mkdir, chdir
 from threading import Thread
 from queue import Queue
 
@@ -22,6 +22,13 @@ class ArchiveScheduler(object):
     def __init__(self, sites : list):
         self.sites = sites
         self.queue = Queue()
+
+        # change current working directory to /data/
+        if not path.exists("data"):
+            mkdir("data")
+        
+        chdir("data")
+
         self.scheduling()
 
     def scheduling(self):
