@@ -2,7 +2,7 @@ from os import path, mkdir, rename, remove
 import twint
 import sqlite3
 
-class media(object):
+class tweet(object):
     def __init__(self, username : str):
         self.username = username
         self.dbname = self.username + ".db"
