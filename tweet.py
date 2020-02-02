@@ -5,7 +5,7 @@ import sqlite3
 class tweet(object):
     def __init__(self, username : str):
         self.username = username
-        self.dbname = "database\\%s.db" % self.username
+        self.dbname = "%s\\tweet.db" % self.username
 
     def archive(self):
         # store to db
