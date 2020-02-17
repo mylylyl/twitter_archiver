@@ -138,6 +138,7 @@ class media(object):
     def archive(self):
         self.download_photos()
         self.download_videos()
+        self.__del__()
 
     def __del__(self):
         self.conn.close()
