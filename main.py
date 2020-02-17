@@ -1,6 +1,7 @@
 from os import path, mkdir, chdir
 from threading import Thread
 from queue import Queue
+import asyncio
 
 from account import account
 
@@ -11,10 +12,12 @@ class DownloadWorker(Thread):
     def __init__(self, queue):
         Thread.__init__(self)
         self.queue = queue
+        self.event_loop = asyncio.new_event_loop()
 
     def run(self):
         while True:
             site = self.queue.get()
+            asyncio.set_event_loop(self.event_loop)
             account(site).archive()
             self.queue.task_done()
 

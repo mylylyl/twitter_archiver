@@ -1,7 +1,6 @@
 from os import path, mkdir, rename, remove
 import sys
 import sqlite3
-import asyncio
 
 import twint
 
@@ -10,10 +9,7 @@ class tweet(object):
         self.username = username
         self.dbname = "%s\\tweet.db" % self.username
 
-    def archive(self):
-        # use twint in multithread env
-        asyncio.set_event_loop(asyncio.new_event_loop())
-        
+    def archive(self):       
         # store to db
         c = twint.Config()
         c.Username = self.username
