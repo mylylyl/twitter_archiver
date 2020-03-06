@@ -1,6 +1,7 @@
 import youtube_dl
 import pathlib
 import requests
+import sys
 from http.client import IncompleteRead
 
 PHOTO_BASE_URL = "https://pbs.twimg.com/media/"
@@ -16,10 +17,10 @@ def video(video_id : int, download_location : str) -> bool:
         try:
             ydl.download([VIDEO_BASE_URL + str(video_id), ])
         except youtube_dl.utils.DownloadError as e:
-            print("[x] failed to download", video_id, " because an exception happened: ", e)
+            print("[x] failed to download video (", video_id, ") because an exception happened: ", e)
             return False
         except:
-            print("[x] failed to download", video_id, " because an unexpected exception happened: ", sys.exc_info())
+            print("[x] failed to download video (", video_id, ") because an unexpected exception happened: ", sys.exc_info())
             return False
         else:
             return True
@@ -31,7 +32,7 @@ def photo(photo_name : str, download_location : str) -> bool:
             try:
                 file.write(requests.get(PHOTO_BASE_URL + photo_name + ".jpg").content)
             except:
-                print("[x] failed to download", photo_name, " because an unexpected exception happened: ", sys.exc_info())
+                print("[x] failed to download photo (", photo_name, ") because an unexpected exception happened: ", sys.exc_info())
                 return False
             else:
                 return True
