@@ -12,7 +12,5 @@ class account:
             mkdir(self.username)
 
     def archive(self):
-        t = tweet(self.username)
-        t.archive()
-        m = media(self.username)
-        m.archive()
+        tweet(self.username).archive()
+        media(self.username).archive()
