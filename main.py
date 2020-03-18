@@ -1,7 +1,4 @@
 from os import path, mkdir, chdir
-from threading import Thread
-from queue import Queue
-import asyncio
 
 from account import account
 
