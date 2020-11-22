@@ -1,23 +1,44 @@
 from os import path, mkdir, chdir
+from threading import Thread
+from queue import Queue
 
-from account import account
+from account import Account
+
+# Numbers of downloading threads concurrently
+THREADS = 5
+class DownloadWorker(Thread):
+    def __init__(self, queue):
+        Thread.__init__(self)
+        self.queue = queue
+
+    def run(self):
+        while True:
+            site = self.queue.get()
+            Account(site).archive()
+            self.queue.task_done()
 
 class ArchiveScheduler(object):
     def __init__(self, sites : list):
         self.sites = sites
+        self.queue = Queue()
 
-        # change current working directory to /data/
+        # check for data dir
         if not path.exists("data"):
             mkdir("data")
-        
-        chdir("data")
 
         self.scheduling()
 
     def scheduling(self):
+        for _ in range(min(THREADS, len(self.sites))):
+            worker = DownloadWorker(self.queue)
+            worker.daemon = True
+            worker.start()
+
         # add sites to queue
         for site in self.sites:
-            account(site).archive()
+            self.queue.put(site)
+
+        self.queue.join()
 
         print("[√] finished downloading all content")
 
@@ -46,6 +67,7 @@ if __name__ == "__main__":
     filename = path.join(cur_dir, "sites.txt")
     if path.exists(filename):
         sites = parse_sites(filename)
+        print('[.] processing users %s' % sites)
     
     if sites:
         ArchiveScheduler(sites)
