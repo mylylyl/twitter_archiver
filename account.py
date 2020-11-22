@@ -1,16 +1,18 @@
 from os import path, mkdir
+from base import Base
+from user import User
+from tweets import Tweets
+from media import Media
 
-from tweet import tweet
-from media import media
-
-class account:
+class Account(Base):
     def __init__(self, username : str):
-        self.username = username
+        Base.__init__(self, username)
 
         # check and create directory
-        if not path.exists(self.username):
-            mkdir(self.username)
+        if not path.exists(self.media_dir):
+            mkdir(self.media_dir)
 
     def archive(self):
-        tweet(self.username).archive()
-        media(self.username).archive()
+        if User(self.username).archive():
+            Tweets(self.username).archive()
+            Media(self.username).archive()
