@@ -126,4 +126,8 @@ dmypy.json
 
 # db and media folder
 data/
+data.old/
 sites.txt
+
+# vscode
+.vscode
