@@ -29,3 +29,8 @@ This project was using Twint but has now shifted to Twitter's front-end API and 
 4. find a ```GET``` call to ```UserByScreenName``` endpoint. you may need to refresh the page for network inspector to record
 5. the request url will have the format like this ```graphql/YOUR_GRAPHQL_ENDPOINT/UserByScreenName?``` copy the graphql endpoint
 6. the request headers will have an ```authorization``` header with format like this ```Bearer YOUR_BEARER_TOKEN``` copy the bearer token
+
+
+### TODO
+- [ ] add config file for more flexible configuration
+- [ ] add fronend for archived tweets management 
