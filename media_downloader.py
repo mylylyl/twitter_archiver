@@ -21,10 +21,10 @@ def video(url : str, id: str, download_location : str) -> bool:
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url, ])
     except youtube_dl.utils.DownloadError as e:
-        #print("[x] failed to download video (%s) because an exception happened: %s" % (url, e))
+        print("[x] failed to download video (%s) because an exception happened: %s" % (url, e))
         return False
     except:
-        #print("[x] failed to download video (%s) because an exception happened: %s" % (url, sys.exc_info()[0]))
+        print("[x] failed to download video (%s) because an exception happened: %s" % (url, sys.exc_info()[0]))
         return False
     
     #print('[√] finished downloading video %s' % url)
