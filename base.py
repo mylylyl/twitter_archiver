@@ -1,9 +1,11 @@
 import sys, json
 import pathlib
+from api import TwitterAPI
 
 class Base(object):
-    def __init__(self, username : str):
+    def __init__(self, username : str, api : TwitterAPI):
         self.username = username
+        self.api = api
         self.parent_dir = 'data'
         self.media_dir = str(pathlib.Path(self.parent_dir, self.username))
         self.user_json_filename = str(pathlib.Path(self.media_dir, 'user.json'))

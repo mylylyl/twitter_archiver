@@ -3,11 +3,11 @@ import sys
 import requests
 
 from base import Base
-import api
+from api import TwitterAPI
 
 class Tweets(Base):
-    def __init__(self, username : str):
-        Base.__init__(self, username)
+    def __init__(self, username : str, api : TwitterAPI):
+        Base.__init__(self, username, api)
 
     def archive(self) -> bool:
         if self._read_user_json() is False:
@@ -23,7 +23,7 @@ class Tweets(Base):
         print('[.] getting tweets for %s (display_name: %s, follower: %d, following: %d)' 
                 % (self.username, self.user_json['legacy']['name'], self.user_json['legacy']['followers_count'], self.user_json['legacy']['friends_count']))
 
-        resp = api.get_tweets(self.user_json['rest_id'], 9999)
+        resp = self.api.get_tweets(self.user_json['rest_id'], 9999)
 
         if resp.status_code != 200:
             print('[!] unable to get user object for %s: status code %d' % (self.username, resp.status_code))

@@ -3,6 +3,7 @@ from threading import Thread
 from queue import Queue
 
 from account import Account
+from api import TwitterAPI
 
 # Numbers of downloading threads concurrently
 THREADS = 5
@@ -12,9 +13,11 @@ class DownloadWorker(Thread):
         self.queue = queue
 
     def run(self):
+        # let's create an api instance for each thread
+        api = TwitterAPI('YOUR_GRAPHQL_ENDPOINT', 'YOUR_BEARER_TOKEN')
         while True:
             site = self.queue.get()
-            Account(site).archive()
+            Account(site, api).archive()
             self.queue.task_done()
 
 class ArchiveScheduler(object):
@@ -40,7 +43,7 @@ class ArchiveScheduler(object):
 
         self.queue.join()
 
-        print("[√] finished downloading all content")
+        print('[√] finished downloading all content')
 
 # borrowed from dixudx/tumblr-crawler
 def parse_sites(filename : str) -> list:

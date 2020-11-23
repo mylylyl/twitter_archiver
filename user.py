@@ -2,17 +2,17 @@ import requests
 import json
 
 from base import Base
-import api
+from api import TwitterAPI
 import media_downloader as downloader
 
 # allocate the user info in json
 class User(Base):
-    def __init__(self, username: str):
-        Base.__init__(self, username)
+    def __init__(self, username: str, api: TwitterAPI):
+        Base.__init__(self, username, api)
 
     # always replace with new json
     def archive(self) -> bool:
-        resp = api.get_user_by_screen_name(self.username)
+        resp = self.api.get_user_by_screen_name(self.username)
         
         if resp.status_code != 200:
             print('[!] unable to get user object for %s: status code %d' % (self.username, resp.status_code))

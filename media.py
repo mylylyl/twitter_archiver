@@ -1,9 +1,10 @@
 from base import Base
 import media_downloader as downloader
+from api import TwitterAPI
 
 class Media(Base):
-    def __init__(self, username : str):
-        Base.__init__(self, username)
+    def __init__(self, username : str, api : TwitterAPI):
+        Base.__init__(self, username, api)
 
     def archive(self) -> bool:
         if self._read_user_json() is False:
