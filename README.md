@@ -15,10 +15,11 @@ This project was using Twint but has now shifted to Twitter's front-end API and 
 
 ### Usage
 
-1. install youtube-dl by using ```pip install youtube-dl```
-2. find your GraphQL endpoint and Bearer token from Twitter (details below)
-3. edit ```main.py``` and put your GraphQL endpoint and Bearer token accordingly
-4. optional: if you want to store archived tweets(json, image and video) to directory other than ```data``` you need to change it in ```main.py``` and ```base.py```
+1. install ```youtube-dl``` with ```pip install youtube-dl```
+2. install ```requests``` with ```pip install requests```
+3. find your GraphQL endpoint and Bearer token from Twitter (details below)
+4. edit ```main.py``` and put your GraphQL endpoint and Bearer token accordingly
+5. optional: if you want to store archived tweets(json, image and video) to directory other than ```data``` you need to change it in ```main.py``` and ```base.py```
 
 
 ### Find your GraphQL endpoint and Bearer token
