@@ -1,0 +1,6 @@
+{
+    "graphql_userbyscreenname_endpoint": "",
+    "graphql_usertweets_endpoint": "",
+    "graphql_tweetdetail_endpoint": "",
+    "bearer_token": ""
+}
