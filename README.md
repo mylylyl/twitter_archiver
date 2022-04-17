@@ -33,7 +33,7 @@ This project was using Twint but has now shifted to Twitter's front-end API and 
 
 
 ### TODO
-- [ ] add config file for more flexible configuration
+- [x] add config file for more flexible configuration
 - [ ] add a json file for metadata storage
 - [ ] add backend for archive
 - [ ] add fronend for archived tweets management 
