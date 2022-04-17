@@ -4,6 +4,7 @@ import json
 from base import Base
 from api import TwitterAPI
 import media_downloader as downloader
+import utils
 
 # allocate the user info in json
 class User(Base):
@@ -25,14 +26,14 @@ class User(Base):
         data = json.loads(resp.text)
 
         if 'errors' in data:
-            print('[!] errors in response for %s: %s' % (self.username, data['errors']))
+            print('[!] errors in user json response for %s: %s' % (self.username, data['errors']))
             return False
 
-        if 'data' not in data or 'user' not in data['data'] or 'legacy' not in data['data']['user']:
-            print('[!] invalid json response for %s: %s' % (self.username, resp.text))
+        if not utils.has_keys(data, ['data', 'user', 'result', 'legacy']):
+            print('[!] invalid user json response for %s: %s' % (self.username, resp.text))
             return False
             
-        user_json = data['data']['user']
+        user_json = data['data']['user']['result']
 
         if user_json['legacy']['protected'] is True:
             print('[!] %s profile is protected' % self.username)
@@ -49,10 +50,11 @@ class User(Base):
             banner_image_url = user_json['legacy']['profile_banner_url']
             downloader.banner_photo(banner_image_url, self.media_dir)
 
-        with open(self.user_json_filename, 'w') as outfile:
-            json.dump(user_json, outfile)
-            #print('[√] refreshed user json for %s' % self.username)
-            return True
-
-        print('[!] failed to open file `%s` for %s' % (self.user_json_filename, self.username))
-        return False
+        try:
+            with open(self.user_json_filename, 'w') as outfile:
+                json.dump(user_json, outfile)
+                #print('[√] refreshed user json for %s' % self.username)
+                return True
+        except:
+            print('[!] failed to save user json file (%s) for %s' % (self.user_json_filename, self.username))
+            return False

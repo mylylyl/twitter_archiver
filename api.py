@@ -1,72 +1,103 @@
+from calendar import c
+from urllib import response
+from xmlrpc.client import Boolean
 import requests, json
 from bearer_auth import BearerAuth
 
 from datetime import datetime
 
-TIMELINE_API_URL = 'https://api.twitter.com/2/timeline/profile/'
 GUEST_TOKEN_URL = 'https://api.twitter.com/1.1/guest/activate.json'
+TWEETS_COUNT = 300 # I think this is a safe count but you may increase. 
 
 class TwitterAPI(object):
-    def __init__(self, graphql_endpoint : str, bearer_token : str):
-        self.graphql_endpoint = graphql_endpoint
+    def __init__(self, graphql_ubs: str, graphql_ut: str, graphql_td: str, bearer_token: str):
         self.bearer_token = bearer_token
-        self.screen_name_url = 'https://api.twitter.com/graphql/%s/UserByScreenName' % self.graphql_endpoint
+        self.screen_name_url = 'https://twitter.com/i/api/graphql/%s/UserByScreenName' % graphql_ubs
+        self.user_tweets_url = 'https://twitter.com/i/api/graphql/%s/UserTweets' % graphql_ut
+        self.tweet_detail_url = 'https://twitter.com/i/api/graphql/%s/TweetDetail' % graphql_td
         self.guest_token = ''
 
-    def _get_guest_token(self) -> bool:
+    def get_guest_token(self) -> bool:
         resp = requests.post(GUEST_TOKEN_URL, auth=BearerAuth(self.bearer_token))
-        if resp.status_code == 200:
-            token_json = resp.json()
-            if 'guest_token' in token_json:
-                self.guest_token = token_json['guest_token']
-                print('[.] setting guest_token to %s' % self.guest_token)
-                return True
+        if resp.status_code != 200:
+            print('[!] failed to retrive guest token: %d' % resp.status_code)
+            return False
         
-        return False
+        if len(resp.text) <= 0:
+            print('[!] invalid response retriving guest token: %s' % resp.text)
+            return False
+
+        data = json.loads(resp.text)
+
+        if 'guest_token' not in data:
+            print('[!] invalid response retriving guest token: %s' % resp.text)
+            return False
+
+        self.guest_token = data['guest_token']
+        return True
 
     def get_user_by_screen_name(self, username: str) -> requests.Response:
-        variables = '{"screen_name":"%s","withHighlightedLabel":true}' % username
+        variables = '{"screen_name":"%s","withSafetyModeUserFields":false,"withSuperFollowsUserFields":false}' % username
         params = {'variables': variables}
-        return requests.get(self.screen_name_url, auth=BearerAuth(self.bearer_token), params=params)
+        return requests.get(self.screen_name_url, auth=BearerAuth(self.bearer_token), headers={'x-guest-token': self.guest_token}, params=params)
 
-    def get_tweets(self, rest_id: str, count: int) -> requests.Response:
-        if self.guest_token == '':
-            self._get_guest_token()
-
-        timeline_api_url = '%s%s.json' % (TIMELINE_API_URL, rest_id)
-        params = {
-            'include_profile_interstitial_type': 1,
-            'include_blocking': 1,
-            'include_blocked_by': 1,
-            'include_followed_by': 1,
-            'include_want_retweets': 1,
-            'include_mute_edge': 1,
-            'include_can_dm': 1,
-            'include_can_media_tag': 1,
-            'skip_status': 1,
-            'cards_platform': 'Web-12',
-            'include_cards': 1,
-            'include_ext_alt_text': 'true',
-            'include_quote_count': 'true',
-            'include_reply_count': 1,
-            'tweet_mode': 'extended',
-            'include_entities': 'true',
-            'include_user_entities': 'true',
-            'include_ext_media_color': 'true',
-            'include_ext_media_availability': 'true',
-            'send_error_codes': 'true',
-            'simple_quoted_tweet': 'true',
-            'include_tweet_replies': 'false',
-            'ext': 'mediaStats,highlightedLabel',
-            'count': count,
+    def get_tweets(self, rest_id: str, count: int, cursor: str) -> tuple:
+        remaining_count = 0
+        if count > TWEETS_COUNT:
+            remaining_count = count - TWEETS_COUNT
+            count = TWEETS_COUNT
+        variables = {
+            "userId": rest_id,
+            "count": count,
+            "includePromotedContent": False,
+            "withQuickPromoteEligibilityTweetFields": False,
+            "withSuperFollowsUserFields": False,
+            "withDownvotePerspective": False,
+            "withReactionsMetadata": False,
+            "withReactionsPerspective": False,
+            "withSuperFollowsTweetFields": True,
+            "withVoice": True,
+            "withV2Timeline": False,
+            "__fs_responsive_web_uc_gql_enabled": False,
+            "__fs_dont_mention_me_view_api_enabled": False,
+            "__fs_interactive_text": False
         }
-        resp = requests.get(timeline_api_url,
-                            auth=BearerAuth(self.bearer_token),
-                            params=params,
-                            headers={'x-guest-token': self.guest_token})
+        if cursor != "":
+            variables["cursor"] = cursor
+        params = {'variables': json.dumps(variables)}
+        resp = requests.get(self.user_tweets_url, auth=BearerAuth(self.bearer_token), headers={'x-guest-token': self.guest_token}, params=params)
 
-        if resp.status_code == 403:
-            if self._get_guest_token():
-                return self.get_tweets(rest_id, count)
+        if resp.status_code == 429:
+            self.get_guest_token()
+            return self.get_tweets(rest_id, count, cursor)
+
+        return (resp, remaining_count)
+
+    def get_tweet(self, rest_id: str) -> requests.Response:
+        variables = {
+            "focalTweetId": rest_id,
+            "with_rux_injections": False,
+            "includePromotedContent": False,
+            "withCommunity": True,
+            "withQuickPromoteEligibilityTweetFields": False,
+            "withBirdwatchNotes": False,
+            "withSuperFollowsUserFields": False,
+            "withDownvotePerspective": False,
+            "withReactionsMetadata": False,
+            "withReactionsPerspective": False,
+            "withSuperFollowsTweetFields": True,
+            "withVoice": True,
+            "withV2Timeline": False,
+            "__fs_responsive_web_uc_gql_enabled": False,
+            "__fs_dont_mention_me_view_api_enabled": False,
+            "__fs_interactive_text": False
+        }
+
+        params = {'variables': json.dumps(variables)}
+        resp = requests.get(self.tweet_detail_url, auth=BearerAuth(self.bearer_token), headers={'x-guest-token': self.guest_token}, params=params)
+
+        if resp.status_code == 429:
+            self.get_guest_token()
+            return self.get_tweet(rest_id)
 
         return resp

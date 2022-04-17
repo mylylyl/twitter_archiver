@@ -1,4 +1,6 @@
 from os import path, mkdir
+import sys
+
 from base import Base
 from user import User
 from tweets import Tweets
@@ -13,7 +15,7 @@ class Account(Base):
         # check and create directory
         if not path.exists(self.media_dir):
             mkdir(self.media_dir)
-            
+        
         if User(self.username, self.api).archive():
             Tweets(self.username, self.api).archive()
             Media(self.username, self.api).archive()
