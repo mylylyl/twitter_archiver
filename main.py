@@ -84,7 +84,7 @@ def parse_sites(filename : str) -> list:
 if __name__ == "__main__":
     cur_dir = path.dirname(path.realpath(__file__))
     sites = []
-    
+
     filename = path.join(cur_dir, "sites.txt")
     if path.exists(filename):
         sites = parse_sites(filename)
@@ -92,4 +92,3 @@ if __name__ == "__main__":
     
     if sites:
         ArchiveScheduler(sites)
-    
