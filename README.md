@@ -34,6 +34,6 @@ This project was using Twint but has now shifted to Twitter's front-end API and 
 
 ### TODO
 - [x] add config file for more flexible configuration
-- [ ] add a json file for metadata storage
-- [ ] add backend for archive
-- [ ] add fronend for archived tweets management 
+- [ ] add ability to view follower-only content (has to be logged in)
+- [ ] store retweeted media in tweeter's directory
+- [ ] add fronend for archived tweets management
