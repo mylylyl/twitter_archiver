@@ -39,13 +39,20 @@ class TwitterAPI(object):
     def get_user_by_screen_name(self, username: str) -> requests.Response:
         variables = '{"screen_name":"%s","withSafetyModeUserFields":false,"withSuperFollowsUserFields":false}' % username
         params = {'variables': variables}
-        return requests.get(self.screen_name_url, auth=BearerAuth(self.bearer_token), headers={'x-guest-token': self.guest_token}, params=params)
+        resp = requests.get(self.screen_name_url, auth=BearerAuth(self.bearer_token), headers={'x-guest-token': self.guest_token}, params=params)
+        
+        if resp.status_code == 429:
+            self.get_guest_token()
+            return self.get_tweets(username)
+        
+        return resp
 
     def get_tweets(self, rest_id: str, count: int, cursor: str) -> tuple:
         remaining_count = 0
         if count > TWEETS_COUNT:
             remaining_count = count - TWEETS_COUNT
             count = TWEETS_COUNT
+        
         variables = {
             "userId": rest_id,
             "count": count,
