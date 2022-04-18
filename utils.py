@@ -7,7 +7,7 @@ def has_keys(d: dict, keys: list) -> bool:
             return False
     return True
 
-# for entries lile [{'type': 'a', ...}, {'type': 'b', ...}]
+# for entries like [{'type': 'a', ...}, {'type': 'b', ...}]
 def get_object(entries: list, type: str):
     if len(entries) == 0: return None
     for entry in entries:
