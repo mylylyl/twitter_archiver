@@ -115,6 +115,9 @@ class Tweets(Base):
                         continue
                     td_entry = td_instructions[0]['entries'][0]
                     if not utils.has_keys(td_entry, ['content', 'itemContent', 'tweet_results', 'result', '__typename']) or td_entry['content']['itemContent']['tweet_results']['result']['__typename'] != "Tweet":
+                        if 'tombstone' in td_entry['entryId']:
+                            #FIXME need login to view
+                            continue
                         print("[!] invalid td_entry object for %s: %s" % (self.username, td_entry))
                         continue
                     cleaned_entries.append(td_entry)
