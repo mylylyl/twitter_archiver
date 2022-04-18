@@ -43,7 +43,7 @@ class TwitterAPI(object):
         
         if resp.status_code == 429:
             self.get_guest_token()
-            return self.get_tweets(username)
+            return self.get_user_by_screen_name(username)
         
         return resp
 
