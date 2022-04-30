@@ -147,6 +147,9 @@ class Tweets(Base):
             for tweet in tweets:
                 sort_indexes.add(tweet['entryId'])
             for tweet in self.tweets_json:
+                if type(tweet) == type(''):
+                    print('[x] %s is not v3' % self.username)
+                    return False
                 if tweet['entryId'] not in sort_indexes:
                     entry_id_type = tweet['entryId'].split('-', 1)[0]
                     if entry_id_type != "tweet":
