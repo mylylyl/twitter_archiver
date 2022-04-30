@@ -1,45 +1,16 @@
 import pathlib
-from threading import Thread
-from queue import Queue
+import os
 
 from base import Base
-import media_downloader as downloader
 from api import TwitterAPI
+from media_scheduler import MediaInfo, MediaScheduler, MediaType
 import utils
 
-THREADS = 10
-class MediaType:
-    def __init__(self, type: str, info1: str, info2, media_dir: str):
-        self.type = type
-        self.info1 = info1
-        self.info2 = info2
-        self.media_dir = media_dir
-
-class MediaWorker(Thread):
-    def __init__(self, queue: Queue):
-        Thread.__init__(self)
-        self.queue = queue
-
-    def run(self):
-        while True:
-            mt = self.queue.get()
-            if mt.type == "video":
-                downloader.video(mt.info1, mt.info2, mt.media_dir)
-            elif mt.type == "photo":
-                downloader.tweet_photo(mt.info1, mt.media_dir)
-            self.queue.task_done()
-
-class MediaScheduler(object):
-    def __init__(self, entries_count: int):
-        self.queue = Queue()
-
-        for _ in range(min(THREADS, entries_count)):
-            worker = MediaWorker(self.queue)
-            worker.daemon = True
-            worker.start()
+# number of media worker thread
+MEDIA_THREADS = 4
 
 class Media(Base):
-    def __init__(self, username : str, api : TwitterAPI):
+    def __init__(self, username: str, api: TwitterAPI):
         Base.__init__(self, username, api)
 
     def archive(self) -> bool:
@@ -51,9 +22,18 @@ class Media(Base):
             print('[!] failed to read tweets json for %s' % self.username)
             return False
 
-        ms = MediaScheduler(len(self.tweets_json))
+        ms = MediaScheduler()
+        ms.start_workers(MEDIA_THREADS)
+
+        # we make sure there's no duplicates
+        # image/video url is used here as unique identifier
+        duplicates = set()
 
         for entry in self.tweets_json:
+            if type(entry) == type(''):
+                print('[x] %s is not v3' % self.username)
+                return False
+
             tweet_obj = entry['content']['itemContent']['tweet_results']['result']
             tweet_id = tweet_obj['rest_id']
             tweet = tweet_obj['legacy']
@@ -68,6 +48,7 @@ class Media(Base):
                 # no media
                 continue
 
+            isRetweet = False
             media_dir = self.media_dir
 
             # the tweets is a retweet
@@ -76,15 +57,41 @@ class Media(Base):
                 if utils.has_keys(retweet, ['result', 'core', 'user_results', 'result', 'legacy']):
                     rt_username = retweet['result']['core']['user_results']['result']['legacy']['screen_name']
                     media_dir = str(pathlib.Path(self.parent_dir, rt_username))
+                    isRetweet = True
                 else:
                     print('[!] invalid retweet for %s: %s' % (self.username, retweet))
+                    continue
+
+            if not pathlib.Path(media_dir).exists():
+                os.mkdir(media_dir)
             
             # https://developer.twitter.com/en/docs/twitter-api/v1/data-dictionary/overview/extended-entities-object#intro
             # media has 3 types: ‘photo’, ‘video’ or ‘animated_gif’
             for media in medias:
                 if media['type'] == 'video':
-                    ms.queue.put(MediaType(media['type'], tweet_id, media['video_info'], media_dir))
+                    if 'variants' not in media['video_info']:
+                        print('[x] failed to download video (%s) for %s because video_info is invalid' % (tweet_id, self.username))
+                        continue
+
+                    # find the best variants
+                    url = ''
+                    bitrate = 0
+                    for var in media['video_info']['variants']:
+                        if 'bitrate' in var:
+                            if var['bitrate'] > bitrate:
+                                url = var['url']
+                                bitrate = var['bitrate']
+                    # get source id instead of the retweet id so we don't create duplicates
+                    id_str = media['source_status_id_str'] if isRetweet else tweet['id_str']
+
+                    if url not in duplicates:
+                        duplicates.add(url)
+                        ms.queue.put(MediaInfo(MediaType.VIDEO, url, media_dir, id_str))
                 elif media['type'] == 'photo':
-                    ms.queue.put(MediaType(media['type'], media['media_url_https'], None, media_dir))
+                    url = media['media_url_https']
+                    if url not in duplicates:
+                        duplicates.add(url)
+                        ms.queue.put(MediaInfo(MediaType.PHOTO, url, media_dir, ''))
 
         ms.queue.join()
+        return True
