@@ -26,10 +26,10 @@ class Base(object):
             # print('[!] %s file not found' % self.user_json_filename)
             return False
         except AttributeError as error:
-            print('[!] attribute error: %s' % error)
+            print('[!] attribute error reading user json for %s: %s' % (self.username, error))
             return False
         except:
-            print('[!] unexpected error: %s', sys.exc_info()[0])
+            print('[!] unexpected error reading user json for %s: %s' % (self.username, sys.exc_info()[0]))
             return False
 
         print('[!] unknown error')
@@ -44,10 +44,10 @@ class Base(object):
             #print('[!] %s file not found' % self.tweets_json_filename)
             return False
         except AttributeError as error:
-            print('[!] attribute error: %s' % error)
+            print('[!] attribute error reading tweet json for %s: %s' % (self.username, error))
             return False
         except:
-            print('[!] unexpected error:', sys.exc_info()[0])
+            print('[!] unexpected error reading tweet json for %s: %s' % (self.username, sys.exc_info()[0]))
             return False
 
         print('[!] unknown error')

@@ -1,5 +1,4 @@
 from os import path, mkdir
-import sys
 
 from base import Base
 from user import User
@@ -8,7 +7,7 @@ from media import Media
 from api import TwitterAPI
 
 class Account(Base):
-    def __init__(self, username : str, api : TwitterAPI):
+    def __init__(self, username: str, api: TwitterAPI):
         Base.__init__(self, username, api)
 
     def archive(self):
